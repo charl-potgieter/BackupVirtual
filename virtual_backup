@@ -21,21 +21,18 @@
 #==============================================================================
 
 # For both standard and error logs
-LogPath=/srv/samba/Documents_Charl/Computer_Technical/Logs
+LogPath=/media/sf_Documents_Charl/Computer_Technical/Logs
 
 #Path details for mirror backup of system itself excluding data
-# ***** THIS IS A MIRROR FILES IN DESTINATION NOT IN SOURCE WILL BE ***********
-# ***** DELETED IN THE DESTINATION PATH ***************************************
 OS_SourcePath=/
-OS_TarDestinationPath="/srv/samba/Documents_Charl/010_EncryptForCloudBackup\
-/ArchSystemBackups/ArchServerTarballs"
-
+OS_TarDestinationPath="/media/sf_Documents_Charl/010_EncryptForCloudBackup\
+/ArchSystemBackups/ArchVirtTarballs"
 
 
 # SPACE sperated list of locations to be excluded from systems backup
 # list Exclusions below are modified from Arch Wiki
 # https://wiki.archlinux.org/index.php/Full_system_backup_with_rsync
-OS_Exclusions="/dev /proc /sys /tmp /run /mnt /media /srv/samba /lost+found"
+OS_Exclusions="/dev /proc /sys /tmp /run /mnt /media /srv/samba /lost+found /media"
 
 
 #====FUNCTION==================================================================
@@ -47,17 +44,17 @@ OS_Exclusions="/dev /proc /sys /tmp /run /mnt /media /srv/samba /lost+found"
 
 system_mirror_tarball() {
 
-        # Tarball is created in addition to standard backup due to possible
-        #  difficulty with longer pathnames in some environments e.g. windows
+        # Tarball is created due difficulty with longer pathnames
+        # in some environments e.g. windows
         # and cloud backups.
         # refer here for exclusions (arch wiki rsync backups)
         # https://wiki.archlinux.org/index.php/Full_system_backup_with_rsync
-        # /srv is also excluded as it contains the mounted files used for
-        # samba share
+        # /srv and /media are also excluded as it contains the mounted files used for
+	# samba share (not currently used) and virtualbox shared folders
 
-        Log="$LogPath/$date.ArchServerTarBackupLog.txt"
-        ErrorLog="$LogPath/$date.ArchServerTarBackupErrorLog.txt"
-        OS_TarDestinationFile=$OS_TarDestinationPath/$date.ArchServerBackup.tar.gz
+        Log="$LogPath/$date.ArchVirtTarBackupLog.txt"
+        ErrorLog="$LogPath/$date.ArchVirtTarBackupErrorLog.txt"
+        OS_TarDestinationFile=$OS_TarDestinationPath/$date.ArchVirtBackup.tar.gz
 
         # Create an exclusion array.  Variable expanstion takes place after
         # brace expanion so can't use a brace expansion solution
@@ -66,7 +63,7 @@ system_mirror_tarball() {
                 excl_array+=(--exclude="$i")
         done
 
-        if [ $DayOfMonth -eq 1 ]
+        if [ $DayOfMonth -eq 14 ]
         then
                tar "${excl_array[@]}"  -czpvf $OS_TarDestinationFile \
                        $OS_SourcePath >$Log 2>$ErrorLog
